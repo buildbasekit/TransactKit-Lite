@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="BuildBaseKit's dependency-free browser workspace for testing TransactKit Lite one-time payment APIs.">
+  <title>BuildBaseKit · TransactKit Lite API Test Console</title>
+  <link rel="icon" type="image/png" href="buildbasekit-logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#workspace" aria-label="BuildBaseKit TransactKit Lite API Console home">
+        <img class="brand-logo" src="buildbasekit-logo.png" alt="">
+        <span><strong>BuildBaseKit</strong><em>/ TransactKit Lite API Console</em></span>
+      </a>
+      <div class="topbar-meta">
+        <span id="connection-label" class="connection-status"><i aria-hidden="true"></i> Checking API</span>
+        <span class="version-tag">Lite</span>
+        <button id="theme-toggle" class="icon-button" type="button" aria-label="Switch to light theme" title="Switch color theme">
+          <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"></path></svg>
+          <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 14.3A8.8 8.8 0 0 1 9.7 3.4 8.8 8.8 0 1 0 20.6 14.3Z"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy-block">
+        <p class="eyebrow">BuildBaseKit / Developer tools</p>
+        <h1 id="page-title">Test every payment path.<br><span>Trust every response.</span></h1>
+        <p class="hero-copy">A focused browser workspace for one-time Checkout, Customer, Payment, and Refund calls against your running TransactKit Lite API.</p>
+      </div>
+      <div class="hero-actions">
+        <button class="button primary" type="button" data-action="configuration"><span aria-hidden="true">↻</span> Check configuration</button>
+        <button class="button secondary" type="button" data-action="reset"><span aria-hidden="true">⌁</span> Reset workspace</button>
+      </div>
+    </section>
+
+    <div id="workspace" class="workbench">
+      <aside class="panel settings-panel" aria-labelledby="setup-title">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Environment</p><h2 id="setup-title">Request context</h2></div>
+        </div>
+
+        <div class="settings-group">
+          <p class="group-label"><span>01</span> Connection</p>
+          <label>API base URL
+            <input id="base-url" type="url" autocomplete="url" spellcheck="false">
+          </label>
+          <div id="configuration-status" class="notice warning" role="status">Checking local configuration…</div>
+        </div>
+
+        <div class="settings-group">
+          <p class="group-label"><span>02</span> Runtime state</p>
+          <div class="state-grid" aria-label="Runtime state">
+            <span id="state-customer" class="state-chip">Customer: empty</span>
+            <span id="state-payment" class="state-chip">Payment: empty</span>
+            <span id="state-checkout" class="state-chip">Checkout: empty</span>
+            <span id="state-refund" class="state-chip">Refund: empty</span>
+          </div>
+          <p class="muted compact">IDs stay in this page only and automatically populate follow-up requests.</p>
+        </div>
+
+        <div class="settings-group scope-note">
+          <p class="group-label"><span>03</span> Lite boundary</p>
+          <p class="muted compact">This tool uses Stripe-hosted Checkout. It never collects card numbers, CVCs, or secret keys.</p>
+        </div>
+      </aside>
+
+      <main class="endpoint-catalog" aria-labelledby="endpoints-title">
+        <div class="catalog-heading">
+          <div><p class="eyebrow">Endpoint catalog</p><h2 id="endpoints-title">Choose a request</h2></div>
+          <span class="endpoint-count">7 endpoints</span>
+        </div>
+
+        <section class="panel endpoint-card">
+          <div class="card-heading">
+            <div class="section-icon" aria-hidden="true">CU</div>
+            <div><p class="eyebrow">Stripe resource</p><h3>Customers</h3><p>Create a minimal Customer or retrieve one by Stripe ID.</p></div>
+          </div>
+          <form id="customer-create-form" class="request-form">
+            <label>Email <input name="email" type="email" value="buyer@example.com" maxlength="254" required></label>
+            <label>Name <input name="name" value="Test Buyer" maxlength="255"></label>
+            <label class="wide">Description <input name="description" value="Created from the TransactKit Lite console" maxlength="500"></label>
+            <button class="request-button accent" type="submit"><span class="method post">POST</span><span>Create Customer</span><span aria-hidden="true">→</span></button>
+          </form>
+          <form id="customer-get-form" class="request-form compact-form">
+            <label>Stripe Customer ID <input name="id" placeholder="cus_..." maxlength="255" required></label>
+            <button class="request-button" type="submit"><span class="method get">GET</span><span>Retrieve Customer</span><span aria-hidden="true">→</span></button>
+          </form>
+        </section>
+
+        <section class="panel endpoint-card">
+          <div class="card-heading">
+            <div class="section-icon checkout-icon" aria-hidden="true">CO</div>
+            <div><p class="eyebrow">One-time payment</p><h3>Checkout Session</h3><p>Create or reuse the latest hosted Checkout attempt.</p></div>
+          </div>
+          <form id="checkout-form" class="request-form">
+            <label>Amount <input name="amount" type="number" min="1" value="2000" required><small>Minor units, for example cents</small></label>
+            <label>Currency <input name="currency" value="usd" minlength="3" maxlength="3" pattern="[A-Za-z]{3}" required></label>
+            <label class="wide">Description <input name="description" value="TransactKit Lite test payment" maxlength="255" required></label>
+            <label>Business reference <input name="businessReference" maxlength="100" required></label>
+            <label>Attempt reference <input name="attemptReference" maxlength="100" required></label>
+            <label>Customer email <input name="customerEmail" type="email" placeholder="buyer@example.com" maxlength="254"></label>
+            <label>Existing Customer ID <input name="stripeCustomerId" placeholder="cus_..." maxlength="255"></label>
+            <button class="request-button accent wide" type="submit"><span class="method post">POST</span><span>Create Checkout Session</span><span aria-hidden="true">→</span></button>
+          </form>
+          <a id="checkout-link" class="checkout-link" target="_blank" rel="noopener" hidden>Open Stripe-hosted Checkout <span aria-hidden="true">↗</span></a>
+        </section>
+
+        <section class="panel endpoint-card">
+          <div class="card-heading">
+            <div class="section-icon payment-icon" aria-hidden="true">PY</div>
+            <div><p class="eyebrow">Local projection</p><h3>Payments</h3><p>Inspect application-owned payment and Checkout state.</p></div>
+          </div>
+          <form id="payment-form" class="request-form compact-form">
+            <label>Local Payment UUID <input name="id" placeholder="00000000-0000-0000-0000-000000000000" required></label>
+            <button class="request-button" type="submit"><span class="method get">GET</span><span>Retrieve Payment</span><span aria-hidden="true">→</span></button>
+          </form>
+        </section>
+
+        <section class="panel endpoint-card">
+          <div class="card-heading">
+            <div class="section-icon refund-icon" aria-hidden="true">RF</div>
+            <div><p class="eyebrow">Post-payment</p><h3>Refunds</h3><p>Create a full or partial refund, then retrieve it from Stripe.</p></div>
+          </div>
+          <form id="refund-form" class="request-form">
+            <label class="wide">Local Payment UUID <input name="paymentId" placeholder="Payment UUID" required></label>
+            <label>Amount <input name="amount" type="number" min="1" placeholder="Blank = full remaining"></label>
+            <label>Reason
+              <select name="reason">
+                <option value="">No reason</option>
+                <option value="REQUESTED_BY_CUSTOMER">Requested by customer</option>
+                <option value="DUPLICATE">Duplicate</option>
+                <option value="FRAUDULENT">Fraudulent</option>
+              </select>
+            </label>
+            <label class="wide">Refund reference <input name="reference" maxlength="100" required></label>
+            <button class="request-button accent wide" type="submit"><span class="method post">POST</span><span>Create Refund</span><span aria-hidden="true">→</span></button>
+          </form>
+          <form id="refund-get-form" class="request-form compact-form">
+            <label>Stripe Refund ID <input name="id" placeholder="re_..." maxlength="255" required></label>
+            <button class="request-button" type="submit"><span class="method get">GET</span><span>Retrieve Refund</span><span aria-hidden="true">→</span></button>
+          </form>
+        </section>
+      </main>
+
+      <aside class="panel results-panel" aria-labelledby="results-title">
+        <div class="panel-heading results-heading">
+          <div><p class="eyebrow">Live output</p><h2 id="results-title">Response stream</h2></div>
+          <button class="text-button" type="button" data-action="clear-results">Clear</button>
+        </div>
+        <div class="runner-bar">
+          <span id="runner-status" class="runner-status"><i aria-hidden="true"></i> Ready</span>
+          <span class="response-hint">Newest first</span>
+        </div>
+        <ol id="results" class="results" aria-live="polite">
+          <li class="empty-result"><span class="terminal-mark" aria-hidden="true">&gt;_</span><strong>No requests yet</strong><p>Choose an endpoint to inspect status, timing, and response data.</p></li>
+        </ol>
+      </aside>
+    </div>
+
+    <footer class="page-footer">
+      <span>BuildBaseKit / TransactKit Lite developer workspace</span>
+      <span><a href="https://buildbasekit.com/boilerplates/transactkit-lite/">buildbasekit.com</a> · Zero remote scripts · One-time payments only</span>
+    </footer>
+  </div>
+</body>
+</html>

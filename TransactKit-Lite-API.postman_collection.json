@@ -1,0 +1,119 @@
+{
+  "info": {
+    "_postman_id": "77943892-b42c-49f3-a416-790d7e442283",
+    "name": "TransactKit Lite API",
+    "description": "Offline-friendly examples for every public TransactKit Lite endpoint. No secrets are stored here. The webhook example requires a valid Stripe-generated signature over the exact raw body.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "baseUrl", "value": "http://localhost:8080"},
+    {"key": "customerId", "value": "cus_replace_me"},
+    {"key": "paymentId", "value": "00000000-0000-0000-0000-000000000000"},
+    {"key": "refundId", "value": "re_replace_me"},
+    {"key": "businessReference", "value": "order-postman-001"},
+    {"key": "attemptReference", "value": "attempt-postman-001"},
+    {"key": "refundReference", "value": "refund-postman-001"},
+    {"key": "stripeSignature", "value": ""}
+  ],
+  "item": [
+    {
+      "name": "Configuration",
+      "item": [
+        {
+          "name": "Get configuration status",
+          "request": {"method": "GET", "header": [], "url": "{{baseUrl}}/api/configuration"}
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "Create customer",
+          "event": [{"listen": "test", "script": {"exec": ["if (pm.response.code === 201) {", "  pm.collectionVariables.set('customerId', pm.response.json().id);", "}"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"email\": \"buyer@example.com\",\n  \"name\": \"Test Buyer\",\n  \"description\": \"Created by Postman\",\n  \"metadata\": {\"source\": \"postman\"}\n}"},
+            "url": "{{baseUrl}}/api/customers"
+          }
+        },
+        {
+          "name": "Retrieve customer",
+          "request": {"method": "GET", "header": [], "url": "{{baseUrl}}/api/customers/{{customerId}}"}
+        }
+      ]
+    },
+    {
+      "name": "Checkout",
+      "item": [
+        {
+          "name": "Create Checkout Session",
+          "event": [{"listen": "test", "script": {"exec": ["if (pm.response.code === 201) {", "  pm.collectionVariables.set('paymentId', pm.response.json().paymentId);", "}"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"amount\": 2000,\n  \"currency\": \"usd\",\n  \"description\": \"Postman payment\",\n  \"businessReference\": \"{{businessReference}}\",\n  \"attemptReference\": \"{{attemptReference}}\",\n  \"customerEmail\": \"buyer@example.com\",\n  \"metadata\": {\"source\": \"postman\"}\n}"},
+            "url": "{{baseUrl}}/api/checkout/sessions",
+            "description": "Repeat with the same attempt reference while the Session is open. Use a new attempt reference after expiration or asynchronous failure."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Retrieve payment",
+          "request": {"method": "GET", "header": [], "url": "{{baseUrl}}/api/payments/{{paymentId}}"}
+        }
+      ]
+    },
+    {
+      "name": "Refunds",
+      "item": [
+        {
+          "name": "Create partial refund",
+          "event": [{"listen": "test", "script": {"exec": ["if (pm.response.code === 201) {", "  pm.collectionVariables.set('refundId', pm.response.json().id);", "}"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"amount\": 500,\n  \"reason\": \"REQUESTED_BY_CUSTOMER\",\n  \"reference\": \"{{refundReference}}\",\n  \"metadata\": {\"source\": \"postman\"}\n}"},
+            "url": "{{baseUrl}}/api/payments/{{paymentId}}/refund"
+          }
+        },
+        {
+          "name": "Create full remaining refund",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"reason\": \"REQUESTED_BY_CUSTOMER\",\n  \"reference\": \"refund-postman-final\"\n}"},
+            "url": "{{baseUrl}}/api/payments/{{paymentId}}/refund"
+          }
+        },
+        {
+          "name": "Retrieve refund",
+          "request": {"method": "GET", "header": [], "url": "{{baseUrl}}/api/refunds/{{refundId}}"}
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "Receive signed Stripe event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Stripe-Signature", "value": "{{stripeSignature}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"id\":\"evt_example\",\"object\":\"event\",\"api_version\":\"2026-08-26.dahlia\",\"type\":\"checkout.session.completed\",\"data\":{\"object\":{\"id\":\"cs_example\",\"object\":\"checkout.session\",\"payment_status\":\"paid\"}}}"},
+            "url": "{{baseUrl}}/api/stripe/webhook",
+            "description": "Documentation example only. Stripe signatures cover the exact raw payload; use Stripe CLI forwarding or an official Stripe SDK helper in automated tests."
+          }
+        }
+      ]
+    }
+  ]
+}

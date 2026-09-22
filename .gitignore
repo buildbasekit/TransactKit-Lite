@@ -1,0 +1,43 @@
+# Java / build output
+target/
+build/
+out/
+*.class
+*.jar
+*.war
+*.ear
+!/.mvn/wrapper/maven-wrapper.jar
+
+# IDEs
+.idea/
+.vscode/
+.metadata/
+.settings/
+.project
+.classpath
+.factorypath
+*.iml
+
+# Local environment and application data
+.env
+.env.*
+!.env.example
+application-local.properties
+application-dev.properties
+application-prod.properties
+data/
+
+# Logs, temporary files, and OS metadata
+logs/
+*.log
+*.tmp
+*.bak
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# Optional frontend tooling
+node_modules/
+coverage/
+*.lcov
