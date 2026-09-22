@@ -1,6 +1,6 @@
 # Architecture
 
-TransactKit Lite uses package-by-feature and a direct `Controller → Service → StripeClient` call path. Controllers expose application records, services own the small amount of payment business logic, and Spring Data JPA persists local projections. There are no Stripe gateways, adapters, generic wrappers, or custom HTTP clients.
+TransactKit-Lite uses package-by-feature and a direct `Controller → Service → StripeClient` call path. Controllers expose application records, services own the small amount of payment business logic, and Spring Data JPA persists local projections. There are no Stripe gateways, adapters, generic wrappers, or custom HTTP clients.
 
 ## Checkout-first lifecycle
 
